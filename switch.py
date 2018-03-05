@@ -50,7 +50,9 @@ class Switch(object):
             self.__serial = serial.Serial(
                 port=self.__port, baudrate=self.__baud)
             self.__writer = switchwriter.SwitchWriter(self.__serial)
+            self.__writer.start()
             self.__reader = switchreader.SwitchReader(self.__serial)
+            self.__reader.start()
             return True
         except Exception:
             print "Failed to connect to switch over port", self.__port
@@ -77,6 +79,24 @@ class Switch(object):
         '''
         if self.__writer is not None:
             self.__writer.cmd(command, enter)
+
+    def waitForOutput(self, out, exact=False):
+        ''' 
+        Purpose : Wait for the switch to send a certain output to the serial port
+        Parameters : 
+            out: The output to search for
+            exact: Determines if the out should be an exact match (Default: False)
+        Returns: None
+        ''' 
+        self.__serial.timeout = 1
+        while True:
+            content = self.__reader.readline()
+            print content 
+            if exact and out == content:
+                break 
+            elif out.lower() in content.lower():
+                break 
+        self.__serial.timeout = 5
 
     def enter(self, repeat=1, delay=0.1):
         ''' 
@@ -107,6 +127,17 @@ class Switch(object):
         Returns: None
         '''
         self.__specialCmd("<Tab", "\t", repeat, delay)
+
+    def close(self):
+        ''' 
+        Purpose : Close a serial connection to a switch
+        Parameters : 
+            None
+        Returns: None
+        ''' 
+        if self.__serial.isOpen():
+            self.__serial.close() 
+            self.__writer = self.__reader = None 
 
     def __specialCmd(self, label, cmd, repeat, delay):
         if self.__writer is not None:
