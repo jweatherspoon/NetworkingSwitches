@@ -24,6 +24,13 @@ class Switch(object):
     '''
 
     def __init__(self, port, baud):
+        ''' 
+        Purpose : Initialize a Switch object
+        Parameters : 
+            port: The serial port to communicate over (string)
+            baud: The baud rate for the serial communication (int)
+        Returns: None
+        ''' 
         self.__port = port
         self.__baud = baud
 
@@ -48,6 +55,17 @@ class Switch(object):
         except Exception:
             print "Failed to connect to switch over port", self.__port
             return False
+
+    def setCode(self, modelName, codeFile):
+        ''' 
+        Purpose : Initialize the switches SwitchCode object for use in configuration
+        Parameters : 
+            modelName: The model name of the switch 
+            codeFile: The name of the file which contains the code filenames.
+                      Format: <lowercase model name> <primary code> <boot code> <poe firmware (optional)>
+        Returns: None
+        ''' 
+        self.__code = switchcode.SwitchCode(modelName.lower(), codeFile)
 
     def sendCommand(self, command, enter=True):
         ''' 
