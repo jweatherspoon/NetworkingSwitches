@@ -128,6 +128,16 @@ class Switch(object):
         '''
         self.__specialCmd("<Tab", "\t", repeat, delay)
 
+    def ctrlC(self, repeat=1, delay=0.1):
+        ''' 
+        Purpose : Send a control+C command to the switch
+        Parameters : 
+            repeat: The number of times to send the command
+            delay: The time to wait before sending another command
+        Returns: None
+        ''' 
+        self.__specialCmd("<Control-C>", "\x03", repeat, delay)
+
     def close(self):
         ''' 
         Purpose : Close a serial connection to a switch
