@@ -64,7 +64,7 @@ class Switch(object):
         Parameters : 
             modelName: The model name of the switch 
             codeFile: The name of the file which contains the code filenames.
-                      Format: <lowercase model name> <primary code> <boot code> <poe firmware (optional)>
+                      Format: <lowercase model name> <boot code> <primary code> <poe firmware (optional)>
         Returns: None
         ''' 
         self.__code = switchcode.SwitchCode(modelName.lower(), codeFile)

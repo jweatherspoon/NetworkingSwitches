@@ -16,7 +16,7 @@ class SwitchCode(object):
             modelName: The model name of a switch. Used to parse codeFile
             codeFile: Name of the file that stores code filenames for given 
                       switches. Format should be:
-                          <lowercase model name> <primary code> <boot code> <poe firmware (optional)>
+                          <lowercase model name> <boot code> <primary code> <poe firmware (optional)>
         Returns: None
         ''' 
         self.__poe = None 
@@ -65,8 +65,8 @@ class SwitchCode(object):
                 tokens = [x.strip() for x in tokens]
 
                 if len(tokens) > 2:
-                    self.__pri = tokens[1]
-                    self.__boot = tokens[2]
+                    self.__boot = tokens[1]
+                    self.__pri = tokens[2]
                     if len(tokens) > 3:
                         self.__poe = tokens[3]
         except:
