@@ -139,6 +139,33 @@ class Switch(object):
             self.__serial.close() 
             self.__writer = self.__reader = None 
 
+    def getBoot(self):
+        ''' 
+        Purpose : Get the filename for the boot code
+        Parameters : 
+            None
+        Returns: String containing the filename or None
+        ''' 
+        return self.__code.getBoot()
+    
+    def getPri(self):
+        ''' 
+        Purpose : Get the filename for the primary code
+        Parameters : 
+            None
+        Returns: String containing the filename or None
+        '''
+        return self.__code.getPri()
+
+    def getPOE(self):
+        ''' 
+        Purpose : Get the filename for the POE firmware
+        Parameters : 
+            None
+        Returns: String containing the filename or None
+        '''
+        return self.__code.getPOE()
+
     def __specialCmd(self, label, cmd, repeat, delay):
         if self.__writer is not None:
             for i in range(repeat):
