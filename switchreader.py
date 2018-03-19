@@ -19,9 +19,12 @@ class SwitchReader(threading.Thread):
             serialObj: The serial connection to read from 
         Returns: None
         ''' 
-        super(SwitchReader, self).__init__(self)
+        super(SwitchReader, self).__init__()
         self.__serial = serialObj 
         self.__outQueue = Queue()
+        self.__stopCondition = threading.Event()
+
+        self.setDaemon(True)
 
     def run(self):
         ''' 
@@ -30,11 +33,13 @@ class SwitchReader(threading.Thread):
             None
         Returns: None
         ''' 
-        while self.__serial.isOpen():
+        while not self.stopped():
             #Try reading a line and storing it in the outQueue
             output = self.__serial.readline() 
-            print output 
-            self.__outQueue.put(output) 
+            if output != "":
+                print output 
+                self.__outQueue.put(output) 
+        print "stopping..."
 
     def readline(self):
         ''' 
@@ -47,3 +52,13 @@ class SwitchReader(threading.Thread):
             return self.__outQueue.get() 
         else: 
             return None
+
+    def clearQueue(self):
+        while not self.__outQueue.empty():
+            self.__outQueue.get()
+
+    def stop(self):
+        self.__stopCondition.set()
+
+    def stopped(self):
+        return self.__stopCondition.isSet()

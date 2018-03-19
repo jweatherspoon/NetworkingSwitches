@@ -10,10 +10,9 @@ import time
 
 import switchcode
 import switchreader
-import switchwriter
 
 ################################################################################
-#	Class : Switch
+#	Class : Switch 
 #	Purpose : Base class for switch object. Handles generic read / write
 ################################################################################
 
@@ -36,7 +35,6 @@ class Switch(object):
 
         self.__serial = None
         self.__reader = None
-        self.__writer = None
         self.__code = None
 
     def connect(self):
@@ -49,12 +47,11 @@ class Switch(object):
         try:
             self.__serial = serial.Serial(
                 port=self.__port, baudrate=self.__baud)
-            self.__writer = switchwriter.SwitchWriter(self.__serial)
-            self.__writer.start()
             self.__reader = switchreader.SwitchReader(self.__serial)
             self.__reader.start()
             return True
-        except Exception:
+        except Exception as ex:
+            print ex.message
             print "Failed to connect to switch over port", self.__port
             return False
 
@@ -77,8 +74,19 @@ class Switch(object):
             enter: Determines if a carriage return should be sent (default: True)
         Returns: None
         '''
-        if self.__writer is not None:
-            self.__writer.cmd(command, enter)
+        if self.__serial.isOpen():
+            self.__serial.write(command)
+            if enter:
+                self.__serial.write('\r')
+
+    def readline(self):
+        ''' 
+        Purpose : Read a line from the switch
+        Parameters : 
+            None
+        Returns: A string containing the output of the switch. None if there is no output
+        ''' 
+        return self.__reader.readline()
 
     def waitForOutput(self, out, exact=False):
         ''' 
@@ -88,15 +96,18 @@ class Switch(object):
             exact: Determines if the out should be an exact match (Default: False)
         Returns: None
         ''' 
-        self.__serial.timeout = 1
+        # Clear the queue
+        self.__reader.clearQueue()
         while True:
             content = self.__reader.readline()
-            print content 
+
+            if content is None:
+                continue
+
             if exact and out == content:
                 break 
             elif out.lower() in content.lower():
                 break 
-        self.__serial.timeout = 5
 
     def enter(self, repeat=1, delay=0.1):
         ''' 
@@ -138,6 +149,17 @@ class Switch(object):
         ''' 
         self.__specialCmd("<Control-C>", "\x03", repeat, delay)
 
+    def reload(self):
+        ''' 
+        Purpose : Reload a switch
+        Parameters : 
+            None
+        Returns: None
+        ''' 
+        self.sendCommand("reload")
+        self.sendCommand('y', False)
+        self.sendCommand('y', False)
+
     def close(self):
         ''' 
         Purpose : Close a serial connection to a switch
@@ -146,8 +168,9 @@ class Switch(object):
         Returns: None
         ''' 
         if self.__serial.isOpen():
+            self.__reader.stop()
             self.__serial.close() 
-            self.__writer = self.__reader = None 
+            # self.__reader.join()
 
     def getBoot(self):
         ''' 
@@ -177,9 +200,9 @@ class Switch(object):
         return self.__code.getPOE()
 
     def __specialCmd(self, label, cmd, repeat, delay):
-        if self.__writer is not None:
+        if self.__serial is not None:
             for i in range(repeat):
                 print label
-                self.__writer.cmd(cmd, True)
+                self.sendCommand(cmd)
                 if repeat > 1:
                     time.sleep(delay)
