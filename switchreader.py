@@ -36,9 +36,8 @@ class SwitchReader(threading.Thread):
         while not self.stopped():
             #Try reading a line and storing it in the outQueue
             output = self.__serial.readline() 
-            if output != "":
-                print output 
-                self.__outQueue.put(output) 
+            print output 
+            self.__outQueue.put(output) 
         print "stopping..."
 
     def readline(self):
@@ -54,11 +53,29 @@ class SwitchReader(threading.Thread):
             return None
 
     def clearQueue(self):
+        ''' 
+        Purpose : Clear the output queue
+        Parameters : 
+            None
+        Returns: None
+        ''' 
         while not self.__outQueue.empty():
             self.__outQueue.get()
 
     def stop(self):
+        ''' 
+        Purpose : Stop the thread loop
+        Parameters : 
+            None
+        Returns: None
+        ''' 
         self.__stopCondition.set()
 
     def stopped(self):
+        ''' 
+        Purpose : Check to see if the thread loop has stopped
+        Parameters : 
+            None
+        Returns: Bool: State of the thread loop
+        ''' 
         return self.__stopCondition.isSet()

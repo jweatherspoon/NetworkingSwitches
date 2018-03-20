@@ -17,6 +17,12 @@ class Brocade(Switch):
         super(Brocade, self).__init__( port, baud)
 
     def handleBoot(self):
+        ''' 
+        Purpose : Handle the boot sequence for Brocade switches by setting no pass and booting
+        Parameters : 
+            None
+        Returns: None
+        ''' 
         self.waitForOutput("'b' to stop at")
         self.sendCommand('b', False)
         self.sendCommand("no password")
@@ -25,6 +31,12 @@ class Brocade(Switch):
         self.enter()
 
     def wipe(self):
+        ''' 
+        Purpose : Wipe a brocade switch
+        Parameters : 
+            None
+        Returns: None
+        ''' 
         flag = True 
         while(flag):
             self.handleBoot()
@@ -49,5 +61,33 @@ class Brocade(Switch):
                 else:
                     print "Got None as Switch Name. Trying again..."
                     snFlag = True
+
+    def uploadCode(self):
+        ''' 
+        Purpose : Upload default configuration and code to a Brocade switch
+        Parameters : 
+            None
+        Returns: None
+        ''' 
+        self.handleBoot()
+        self.enter()
+        self.sendCommand("enable")
+        self.enter()
+        self.sendCommand("conf t")
+        self.enter()
+        self.sendCommand("int man 1")
+        self.enter()
+        self.sendCommand("ip add 192.168.1.1 255.255.255.0")
+        self.sendCommand("enable")
+        self.enter()
+        self.sendCommand("end")
+        self.enter()
+        
+        self.tftpStartup()
+        self.tftpBoot()
+        self.tftpPrimary()
+
+
+
 
         

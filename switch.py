@@ -160,6 +160,53 @@ class Switch(object):
         self.sendCommand('y', False)
         self.sendCommand('y', False)
 
+    def tftpStartup(self):
+        ''' 
+        Purpose : TFTP startup template to a switch
+        Parameters : 
+            None
+        Returns: None
+        '''
+        cmd = "copy tftp startup-config 192.168.1.2 template.startup"
+        self.sendCommand(cmd)
+        time.sleep(0.5)
+        self.waitForOutput("")
+
+    def tftpBoot(self):
+        ''' 
+        Purpose : TFTP boot code to a switch
+        Parameters : 
+            None
+        Returns: None
+        '''
+        bootCode = self.getBoot()
+        if bootCode is not None:
+            cmd = "copy tftp flash 192.168.1.2 {0} bootrom".format(bootCode)
+            self.sendCommand(cmd)
+            time.sleep(0.5)
+            self.waitForOutput("")
+        else:
+            print "No boot code. Set boot in codefile!"
+
+    def tftpPrimary(self):
+        ''' 
+        Purpose : TFTP primary / secondary code to a switch
+        Parameters : 
+            None
+        Returns: None
+        '''
+        priCode = self.getPri()
+        if priCode is not None:
+            cmd = "copy tftp flash 192.168.1.2 {0} pri".format(priCode)
+            self.sendCommand(cmd)
+            time.sleep(0.5)
+            self.waitForOutput("")
+            self.sendCommand("copy flash flash sec")
+            time.sleep(0.5)
+            self.waitForOutput("")
+        else: 
+            print "No primary code. Set primary in codefile!"
+
     def close(self):
         ''' 
         Purpose : Close a serial connection to a switch
@@ -170,7 +217,6 @@ class Switch(object):
         if self.__serial.isOpen():
             self.__reader.stop()
             self.__serial.close() 
-            # self.__reader.join()
 
     def getBoot(self):
         ''' 
